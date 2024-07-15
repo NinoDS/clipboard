@@ -1,7 +1,9 @@
+import { exists } from "https://deno.land/std/fs/exists.ts";
+
 export async function copy(text: string): Promise<void> {
   const cmd = {
     "darwin": ["pbcopy"],
-    "linux": ["xclip", "-selection", "clipboard", "-i"],
+    "linux": await exists("/usr/bin/wl-copy") ? ["wl-copy"] : ["xclip", "-selection", "clipboard", "-i"],
     "windows": ["powershell", "-Command", "Set-Clipboard"],
   }[Deno.build.os];
   const process = await Deno.run({ cmd, stdin: "piped" });
@@ -13,7 +15,7 @@ export async function copy(text: string): Promise<void> {
 export async function paste(): Promise<string> {
   const cmd = {
     "darwin": ["pbpaste"],
-    "linux": ["xclip", "-selection", "clipboard", "-o"],
+    "linux": await exists("/usr/bin/wl-copy") ? ["wl-copy"] : ["xclip", "-selection", "clipboard", "-o"],
     "windows": ["powershell", "-Command", "Get-Clipboard"],
   }[Deno.build.os];
   const process = await Deno.run({ cmd, stdout: "piped" });
